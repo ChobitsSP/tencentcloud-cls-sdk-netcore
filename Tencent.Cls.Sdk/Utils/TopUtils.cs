@@ -57,7 +57,7 @@ namespace Tencent.Cls.Sdk.Utils
             var signpath = CalSha1HMACDigest(secretKey, qpathTime.ToString());
 
             // 步骤二：构成 FormatString
-            var formatString = string.Join("\n", method.ToLower(), path, DicToStr(dic, keys2), DicToStr(headers, keys1), "");
+            var formatString = string.Join("\n", method.ToLower(), path, DicToStr(dic, keys2), DicToStr(headers, keys1), string.Empty);
 
             // 步骤三：计算 StringToSign
             var res = CalSha1sum(formatString);
@@ -82,6 +82,37 @@ namespace Tencent.Cls.Sdk.Utils
 
         static string DicToStr(IDictionary<string, string> dic, string[] keys)
         {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < keys.Length; i++)
+            {
+
+
+
+            }
+
+
+
+
+            //let map2str = function(obj: Map<string, string>, getKeylist: Function) {
+            //    var i, key, val;
+            //    var list = [];
+            //    var keyList = getKeylist(obj);
+            //    for (i = 0; i < keyList.length; i++)
+            //    {
+            //        key = keyList[i];
+            //        val = (obj.get(key) === undefined) ? '' : ('' + obj.get(key));
+            //        key = key.toLowerCase();
+            //        key = camSafeUrlEncode(key);
+            //        val = camSafeUrlEncode(val) || '';
+            //        list.push(key + '=' + val)
+            //    }
+            //    return list.join('&');
+            //}
+
+
+
+
             return "";
         }
     }
