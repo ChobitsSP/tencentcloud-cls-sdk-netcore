@@ -9,8 +9,25 @@ namespace Tencent.Cls.Sdk.Utils
 {
     public static class TopUtils
     {
-
         static readonly string[] HEADER_KEYS = new string[] { "content-type", "content-md5", "host", "x" };
+
+        static string CalSha1sum(string msg)
+        {
+            var hasher = new HMACSHA1();
+            var baText2BeHashed = enc.GetBytes(msg);
+            byte[] baHashedText = hasher.ComputeHash(baText2BeHashed);
+            return string.Concat(baHashedText.Select(b => b.ToString("X2")));
+        }
+
+        static string CalSha1HMACDigest(string key, string msg)
+        {
+            var enc = Encoding.UTF8;
+            var baSalt = enc.GetBytes(key);
+            var hasher = new HMACSHA1(baSalt);
+            var baText2BeHashed = enc.GetBytes(msg);
+            byte[] baHashedText = hasher.ComputeHash(baText2BeHashed);
+            return string.Concat(baHashedText.Select(b => b.ToString("X2")));
+        }
 
         static IEnumerable<string> getHeaderKeylist(IDictionary<string, string> dic)
         {
@@ -37,18 +54,17 @@ namespace Tencent.Cls.Sdk.Utils
             var qUrlParamList = string.Join(";", keys2);
 
             // 步骤一：计算 Signpath
-            var signpath = GetSha1(secretKey, qpathTime.ToString());
+            var signpath = CalSha1HMACDigest(secretKey, qpathTime.ToString());
 
             // 步骤二：构成 FormatString
             var formatString = string.Join("\n", method.ToLower(), path, DicToStr(dic, keys2), DicToStr(headers, keys1), "");
 
             // 步骤三：计算 StringToSign
-            var res = GetSha1(null, formatString);
+            var res = CalSha1sum(formatString);
             var stringToSign = string.Join("\n", "sha1", qSignTime, res, string.Empty);
 
             // 步骤四：计算 Signature
-            var qSignature = GetSha1(signpath, stringToSign);
-
+            var qSignature = CalSha1HMACDigest(signpath, stringToSign);
 
             // 步骤五：构造 Authorization
             var authorization = string.Join("&", new string[] {
@@ -65,11 +81,6 @@ namespace Tencent.Cls.Sdk.Utils
         }
 
         static string DicToStr(IDictionary<string, string> dic, string[] keys)
-        {
-            return "";
-        }
-
-        public static string GetSha1(string key, string update)
         {
             return "";
         }

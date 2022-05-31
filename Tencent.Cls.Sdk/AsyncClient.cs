@@ -42,9 +42,6 @@ namespace Tencent.Cls.Sdk
                 try
                 {
                     var res = await this.sendLogs(Constants.CONST_HTTP_METHOD_POST, Constants.UPLOAD_LOG_RESOURCE_URI, urlParameter, headParameter, logBytes, request.Topic);
-                    //let putLogRequest = new Response();
-                    //putLogRequest.setAllHeaders(res.headers);
-                    //putLogRequest.setHttpStatusCode(res.status);
                     if (res.StatusCode == HttpStatusCode.OK)
                     {
                         return res;
