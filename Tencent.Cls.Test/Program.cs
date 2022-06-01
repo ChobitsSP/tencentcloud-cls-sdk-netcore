@@ -22,8 +22,10 @@ namespace Tencent.Cls.Test
 
             try
             {
-                var rsp = await client.SendLog(LogEventLevel.Debug, "test", new Dictionary<string, string>()
+                var rsp = await client.SendLog(new Dictionary<string, string>()
                 {
+                    { "msg", "test1" },
+                    { "level", "debug" },
                     { "uuid", Guid.NewGuid().ToString() },
                 });
                 Console.WriteLine(rsp.StatusCode);

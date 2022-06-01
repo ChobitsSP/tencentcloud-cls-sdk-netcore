@@ -87,9 +87,9 @@ namespace Tencent.Cls.Sdk
 
             try
             {
-                var rsp = await req.GetRequestStreamAsync();
+                // var rsp = await req.GetRequestStreamAsync();
 
-                // var rsp = (HttpWebResponse)req.GetResponse();
+                var rsp = (HttpWebResponse)req.GetResponse();
 
                 var res = new PutLogsResponse();
                 res.Headers = new Dictionary<string, string>();

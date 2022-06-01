@@ -70,22 +70,43 @@ namespace Tencent.Cls.Sdk
             return EmitBatchAsync(this.TopicId, logEvents);
         }
 
-        public async Task<PutLogsResponse> SendLog(LogEventLevel level, string msg, Dictionary<string, string> body = null)
+        public async Task<PutLogsResponse> SendLog(Dictionary<string, string> body)
         {
-            var plist = new List<LogEventProperty>();
-            var tokens = new List<MessageTemplateToken>();
+            var logBytes = new ClsFormatter().Format(body);
 
-            if (body != null)
+            var topic = this.TopicId;
+
+            if (logBytes.Length > Constants.CONST_MAX_PUT_SIZE)
             {
-                foreach (var kv in body)
+                throw new Exception($"InvalidLogSize.logItems' size exceeds maximum limitation : { Constants.CONST_MAX_PUT_SIZE} bytes, logBytes={logBytes.Length}, topic={topic}");
+            }
+
+            var headParameter = this.getCommonHeadPara();
+            var urlParameter = new Dictionary<string, string>();
+            urlParameter[Constants.TOPIC_ID] = topic;
+
+            for (var retryTimes = 0; retryTimes < this.RetryTimes; retryTimes++)
+            {
+                try
                 {
-                    plist.Add(new LogEventProperty(kv.Key, new ScalarValue(kv.Value)));
+                    var res = await this.sendLogs(Constants.CONST_HTTP_METHOD_POST, Constants.UPLOAD_LOG_RESOURCE_URI, urlParameter, headParameter, logBytes, topic);
+                    if (res.StatusCode == HttpStatusCode.OK)
+                    {
+                        return res;
+                    }
+                    if (retryTimes + 1 >= this.RetryTimes)
+                    {
+                        throw new Exception(res.errormessage);
+                        // throw new Exception("send log failed and exceed retry times");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
                 }
             }
 
-            var log = new LogEvent(DateTimeOffset.Now, level, null, new MessageTemplate(msg, tokens), plist);
-            var rsp = await EmitBatchAsync(this.TopicId, log);
-            return rsp;
+            return null;
         }
 
         /// <summary>

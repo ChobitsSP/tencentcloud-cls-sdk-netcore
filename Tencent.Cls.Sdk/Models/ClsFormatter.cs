@@ -21,6 +21,7 @@ namespace Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters
         /// The events to format.
         /// </param>
         byte[] Format(IEnumerable<LogEvent> logEvents);
+        byte[] Format(IDictionary<string, string> dic);
     }
 
     public class ClsFormatter : IBatchFormatter
@@ -187,6 +188,46 @@ namespace Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters
                 logEvent.Timestamp.ToString("o"),
                 logEvent.MessageTemplate.Text,
                 e);
+        }
+
+        public byte[] Format(IDictionary<string, string> dic)
+        {
+            if (dic == null) throw new ArgumentNullException(nameof(dic));
+
+            var contents = new List<global::TencentCloud.Cls.Log.Types.Content>();
+
+            foreach (var kv in dic)
+            {
+                contents.Add(new global::TencentCloud.Cls.Log.Types.Content
+                {
+                    Key = kv.Key,
+                    Value = kv.Value,
+                });
+            }
+
+            var logGroup = new global::TencentCloud.Cls.LogGroup();
+
+
+            var log = new global::TencentCloud.Cls.Log();
+            try
+            {
+                log.Contents.AddRange(contents);
+                log.Time = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            }
+            catch (Exception e)
+            {
+                SelfLog.WriteLine(
+                    "Event at {0} with message template {1} could not be formatted into JSON and will be dropped: {2}",
+                    DateTime.Now.ToString("o"),
+                    "",
+                    e);
+            }
+            logGroup.Logs.Add(log);
+
+            var logGroupList = new global::TencentCloud.Cls.LogGroupList();
+            logGroupList.LogGroupList_.Add(logGroup);
+
+            return logGroupList.ToByteArray();
         }
     }
 }
