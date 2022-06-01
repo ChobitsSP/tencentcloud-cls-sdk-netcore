@@ -1,4 +1,5 @@
 ﻿using Serilog.Events;
+using Serilog.Parsing;
 using Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using Tencent.Cls.Sdk.Utils;
 
 namespace Tencent.Cls.Sdk
 {
-    public class AsyncClient
+    public class TxClsClient
     {
         public string HostPath { get; set; } = "https://ap-guangzhou.cls.tencentcs.com";
         public string HostName
@@ -27,7 +28,7 @@ namespace Tencent.Cls.Sdk
         public string SecretKey { get; set; }
         public string TopicId { get; set; }
         public string SourceIp { get; set; }
-        public int RetryTimes { get; set; }
+        public int RetryTimes { get; set; } = 1;
 
         public async Task<PutLogsResponse> PutLogs(PutLogsRequest request)
         {
@@ -69,6 +70,19 @@ namespace Tencent.Cls.Sdk
             return EmitBatchAsync(this.TopicId, logEvents);
         }
 
+        public async void SendLog(LogEventLevel level)
+        {
+            var plist = new List<LogEventProperty>();
+            var tokens = new List<MessageTemplateToken>();
+
+            var log = new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate("123", tokens), plist);
+
+
+
+
+
+        }
+
         /// <summary>
         /// Emit a batch of log events, running asynchronously.
         /// </summary>
@@ -96,7 +110,8 @@ namespace Tencent.Cls.Sdk
                     }
                     if (retryTimes + 1 >= this.RetryTimes)
                     {
-                        throw new Exception("send log failed and exceed retry times");
+                        throw new Exception(res.errormessage);
+                        // throw new Exception("send log failed and exceed retry times");
                     }
                 }
                 catch (Exception ex)
@@ -121,7 +136,7 @@ namespace Tencent.Cls.Sdk
                { Constants.TOPIC_ID, topic },
             });
 
-            return webUtils.DoPostWithHeaders(url, headParameter, body);
+            return webUtils.DoPostWithHeadersAsync(url, headParameter, body);
         }
 
         private Dictionary<string, string> getCommonHeadPara()

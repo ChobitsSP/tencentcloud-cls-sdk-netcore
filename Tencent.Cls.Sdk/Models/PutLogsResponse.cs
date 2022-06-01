@@ -11,5 +11,7 @@ namespace Tencent.Cls.Sdk.Models
     {
         public Dictionary<string, string> Headers { get; set; }
         public HttpStatusCode StatusCode { get; set; }
+        public string errorcode { get; set; }
+        public string errormessage { get; set; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Serilog.Events;
+using Serilog.Parsing;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Tencent.Cls.Sdk;
@@ -17,13 +19,22 @@ namespace Tencent.Cls.Test
 
         static async void Test1()
         {
-            var client = JsonConvert.DeserializeObject<AsyncClient>(File.ReadAllText("config.json"));
+            var client = JsonConvert.DeserializeObject<TxClsClient>(File.ReadAllText("config.json"));
 
-            LogEvent log = null;
+            var plist = new List<LogEventProperty>();
+            var tokens = new List<MessageTemplateToken>();
 
-            var rsp = await client.EmitBatchAsync(log);
+            var log = new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate("123", tokens), plist);
 
-            Console.WriteLine(rsp);
+            try
+            {
+                var rsp = await client.EmitBatchAsync(log);
+                Console.WriteLine(rsp);
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
 
             Debugger.Break();
         }
