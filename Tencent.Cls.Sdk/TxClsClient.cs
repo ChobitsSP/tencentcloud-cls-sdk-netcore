@@ -29,7 +29,7 @@ namespace Tencent.Cls.Sdk
         public string SecretId { get; set; }
         public string SecretKey { get; set; }
         public string TopicId { get; set; }
-        public int RetryTimes { get; set; } = 1;
+        public int RetryTimes { get; set; } = 10;
 
         public async void Error(Dictionary<string, string> body, Exception ex = null)
         {
@@ -48,7 +48,7 @@ namespace Tencent.Cls.Sdk
 
         private async Task<PutLogsResponse> SendLog(LogEventLevel level, Dictionary<string, string> body, Exception ex = null)
         {
-            var dic = new Dictionary<string, string>();
+            var dic = new SortedDictionary<string, string>();
             dic["Timestamp"] = DateTimeOffset.Now.ToString("o");
             dic["Level"] = level.ToString();
 
@@ -64,10 +64,10 @@ namespace Tencent.Cls.Sdk
 
             var topic = this.TopicId;
 
-            if (logBytes.Length > Constants.CONST_MAX_PUT_SIZE)
-            {
-                throw new Exception($"InvalidLogSize.logItems' size exceeds maximum limitation : { Constants.CONST_MAX_PUT_SIZE} bytes, logBytes={logBytes.Length}, topic={topic}");
-            }
+            //if (logBytes.Length > Constants.CONST_MAX_PUT_SIZE)
+            //{
+            //    throw new Exception($"InvalidLogSize.logItems' size exceeds maximum limitation : { Constants.CONST_MAX_PUT_SIZE} bytes, logBytes={logBytes.Length}, topic={topic}");
+            //}
 
             var headParameter = this.getCommonHeadPara();
             var urlParameter = new Dictionary<string, string>();
@@ -97,7 +97,7 @@ namespace Tencent.Cls.Sdk
             return null;
         }
 
-        private Task<PutLogsResponse> sendLogs(string method, string resourceUri, IDictionary<string, string> urlParameter, IDictionary<string, string> headParameter, byte[] body, string topic)
+        private async Task<PutLogsResponse> sendLogs(string method, string resourceUri, IDictionary<string, string> urlParameter, IDictionary<string, string> headParameter, byte[] body, string topic)
         {
             headParameter[Constants.CONST_CONTENT_LENGTH] = body.Length.ToString();
             var signature_str = TopUtils.GetSign(this.SecretId, this.SecretKey, method, resourceUri, urlParameter, headParameter, 300000);
@@ -107,7 +107,18 @@ namespace Tencent.Cls.Sdk
             {
                { Constants.TOPIC_ID, topic },
             });
-            return webUtils.DoPostWithHeadersAsync(url, headParameter, body);
+            var rsp = await webUtils.DoPostAsync(url, headParameter, body);
+
+            var res = new PutLogsResponse();
+            res.Headers = new Dictionary<string, string>();
+            res.StatusCode = rsp.StatusCode;
+
+            foreach (var header in rsp.Headers)
+            {
+                res.Headers[header.Key] = header.Value.ToString();
+            }
+
+            return res;
         }
 
         private Dictionary<string, string> getCommonHeadPara()

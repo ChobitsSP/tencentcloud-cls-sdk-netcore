@@ -27,6 +27,33 @@ namespace Tencent.Cls.Sdk
             return DoPostWithHeadersAsync(url, headers, postData).Result;
         }
 
+        public Task<HttpResponseMessage> DoPostAsync(string url, IDictionary<string, string> headers, byte[] postData)
+        {
+            var client = new HttpClient();
+
+            var req = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(url),
+                //Headers = {
+                //    { HttpRequestHeader.Authorization.ToString(), headers["Authorization"] },
+                //    { HttpRequestHeader.Host.ToString(), headers["Host"] },
+                //    { HttpRequestHeader.ContentLength.ToString(), postData.Length.ToString() },
+                //    { HttpRequestHeader.ContentType.ToString(), Constants.CONST_CONTENT_TYPE },
+                //},
+                Content = new ByteArrayContent(postData),
+            };
+
+            req.Headers.Clear();
+
+            foreach (var header in headers)
+            {
+                req.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            }
+
+            return client.SendAsync(req);
+        }
+
         public async Task<PutLogsResponse> DoPostWithHeadersAsync(string url, IDictionary<string, string> headers, byte[] postData)
         {
             HttpWebRequest req = GetWebRequest(url, "POST");
