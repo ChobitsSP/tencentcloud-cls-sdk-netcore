@@ -81,15 +81,6 @@ namespace Tencent.Cls.Sdk.Utils
             return authorization;
         }
 
-        //    let camSafeUrlEncode = function(str: string) {
-        //return encodeURIComponent(str)
-        //    .replace(/!/g, '%21')
-        //    .replace(/'/g, '%27')
-        //    .replace(/\(/g, '%28')
-        //    .replace(/\)/g, '%29')
-        //    .replace(/\*/g, '%2A');
-        //}
-
         public static string CamSafeUrlEncode(string str)
         {
             return HttpUtility.UrlEncode(str, Encoding.UTF8)
