@@ -24,41 +24,7 @@ namespace Tencent.Cls.Sdk
 
         public PutLogsResponse DoPostWithHeaders(string url, IDictionary<string, string> headers, byte[] postData)
         {
-            HttpWebRequest req = GetWebRequest(url, "POST");
-
-            foreach (var header in headers)
-            {
-                req.Headers.Set(header.Key, header.Value);
-            }
-
-            Stream reqStream = req.GetRequestStream();
-            reqStream.Write(postData, 0, postData.Length);
-            reqStream.Close();
-
-            try
-            {
-                // var rsp = (HttpWebResponse)await Task.Factory.FromAsync<WebResponse>(req.BeginGetResponse, req.EndGetResponse, null);
-
-                var rsp = (HttpWebResponse)req.GetResponse();
-
-                var res = new PutLogsResponse();
-                res.Headers = new Dictionary<string, string>();
-                res.StatusCode = rsp.StatusCode;
-
-                foreach (var key in rsp.Headers.AllKeys)
-                {
-                    res.Headers[key] = rsp.Headers.GetValues(key).FirstOrDefault();
-                }
-
-                return res;
-            }
-            catch (WebException ex)
-            {
-                if (ex.Response == null) throw;
-                var res = GetJsonRsp<PutLogsResponse>(ex.Response);
-                res.StatusCode = (ex.Response as HttpWebResponse).StatusCode;
-                return res;
-            }
+            return DoPostWithHeadersAsync(url, headers, postData).Result;
         }
 
         public async Task<PutLogsResponse> DoPostWithHeadersAsync(string url, IDictionary<string, string> headers, byte[] postData)
