@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Tencent.Cls.Sdk.Utils
 {
@@ -80,40 +81,44 @@ namespace Tencent.Cls.Sdk.Utils
             return authorization;
         }
 
-        static string DicToStr(IDictionary<string, string> dic, string[] keys)
+        //    let camSafeUrlEncode = function(str: string) {
+        //return encodeURIComponent(str)
+        //    .replace(/!/g, '%21')
+        //    .replace(/'/g, '%27')
+        //    .replace(/\(/g, '%28')
+        //    .replace(/\)/g, '%29')
+        //    .replace(/\*/g, '%2A');
+        //}
+
+        public static string CamSafeUrlEncode(string str)
+        {
+            return HttpUtility.UrlEncode(str, Encoding.UTF8)
+                .Replace("!", "%21")
+                .Replace("'", "%27")
+                .Replace("(", "%28")
+                .Replace(")", "%29")
+                .Replace("*", "%2A")
+                ;
+        }
+
+        static string DicToStr(IDictionary<string, string> dic, string[] keyList)
         {
             var sb = new StringBuilder();
 
-            for (var i = 0; i < keys.Length; i++)
+            for (var i = 0; i < keyList.Length; i++)
             {
+                var key = keyList[i];
 
+                var val = dic.ContainsKey(key) ? dic[key] : string.Empty;
 
+                key = CamSafeUrlEncode(key.ToLower());
+                val = CamSafeUrlEncode(val);
 
+                if (i > 0) sb.Append("&");
+                sb.AppendFormat("{0}={1}", key, val);
             }
 
-
-
-
-            //let map2str = function(obj: Map<string, string>, getKeylist: Function) {
-            //    var i, key, val;
-            //    var list = [];
-            //    var keyList = getKeylist(obj);
-            //    for (i = 0; i < keyList.length; i++)
-            //    {
-            //        key = keyList[i];
-            //        val = (obj.get(key) === undefined) ? '' : ('' + obj.get(key));
-            //        key = key.toLowerCase();
-            //        key = camSafeUrlEncode(key);
-            //        val = camSafeUrlEncode(val) || '';
-            //        list.push(key + '=' + val)
-            //    }
-            //    return list.join('&');
-            //}
-
-
-
-
-            return "";
+            return sb.ToString();
         }
     }
 }
