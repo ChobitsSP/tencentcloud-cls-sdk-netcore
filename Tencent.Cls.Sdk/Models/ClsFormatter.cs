@@ -21,7 +21,7 @@ namespace Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters
         /// The events to format.
         /// </param>
         byte[] Format(IEnumerable<LogEvent> logEvents);
-        byte[] Format(IDictionary<string, string> dic);
+        byte[] Format(IDictionary<string, string> dic, Exception ex);
     }
 
     public class ClsFormatter : IBatchFormatter
@@ -190,7 +190,7 @@ namespace Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters
                 e);
         }
 
-        public byte[] Format(IDictionary<string, string> dic)
+        public byte[] Format(IDictionary<string, string> dic, Exception ex)
         {
             if (dic == null) throw new ArgumentNullException(nameof(dic));
 
@@ -204,9 +204,16 @@ namespace Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters
                     Value = kv.Value,
                 });
             }
+            if (ex != null)
+            {
+                contents.Add(new global::TencentCloud.Cls.Log.Types.Content
+                {
+                    Key = "Exception",
+                    Value = FlattenException(ex),
+                });
+            }
 
             var logGroup = new global::TencentCloud.Cls.LogGroup();
-
 
             var log = new global::TencentCloud.Cls.Log();
             try
@@ -228,6 +235,22 @@ namespace Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters
             logGroupList.LogGroupList_.Add(logGroup);
 
             return logGroupList.ToByteArray();
+        }
+
+        public static string FlattenException(Exception exception)
+        {
+            var stringBuilder = new StringBuilder();
+
+            while (exception != null)
+            {
+                stringBuilder.AppendLine(exception.GetType().FullName);
+                stringBuilder.AppendLine(exception.Message);
+                stringBuilder.AppendLine(exception.StackTrace);
+
+                exception = exception.InnerException;
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }

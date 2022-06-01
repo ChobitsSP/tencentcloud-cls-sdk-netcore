@@ -31,9 +31,36 @@ namespace Tencent.Cls.Sdk
         public string TopicId { get; set; }
         public int RetryTimes { get; set; } = 1;
 
-        public async Task<PutLogsResponse> SendLog(Dictionary<string, string> body)
+        public async void Error(Dictionary<string, string> body, Exception ex = null)
         {
-            var logBytes = new ClsFormatter().Format(body);
+            await SendLog(LogEventLevel.Error, body, ex);
+        }
+
+        public async void Info(Dictionary<string, string> body, Exception ex = null)
+        {
+            await SendLog(LogEventLevel.Information, body, ex);
+        }
+
+        public async void Warn(Dictionary<string, string> body, Exception ex = null)
+        {
+            await SendLog(LogEventLevel.Warning, body, ex);
+        }
+
+        private async Task<PutLogsResponse> SendLog(LogEventLevel level, Dictionary<string, string> body, Exception ex = null)
+        {
+            var dic = new Dictionary<string, string>();
+            dic["Timestamp"] = DateTimeOffset.Now.ToString("o");
+            dic["Level"] = level.ToString();
+
+            if (body != null)
+            {
+                foreach (var kv in body)
+                {
+                    dic[kv.Key] = kv.Value;
+                }
+            }
+
+            var logBytes = new ClsFormatter().Format(dic, ex);
 
             var topic = this.TopicId;
 
@@ -61,7 +88,7 @@ namespace Tencent.Cls.Sdk
                         // throw new Exception("send log failed and exceed retry times");
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     throw;
                 }

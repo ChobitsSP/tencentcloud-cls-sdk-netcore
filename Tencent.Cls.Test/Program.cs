@@ -22,13 +22,11 @@ namespace Tencent.Cls.Test
 
             try
             {
-                var rsp = await client.SendLog(new Dictionary<string, string>()
+                client.Info(new Dictionary<string, string>()
                 {
                     { "msg", "test1" },
-                    { "level", "debug" },
                     { "uuid", Guid.NewGuid().ToString() },
                 });
-                Console.WriteLine(rsp.StatusCode);
                 Debugger.Break();
             }
             catch (Exception ex)
