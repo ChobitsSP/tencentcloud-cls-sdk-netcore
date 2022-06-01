@@ -14,6 +14,7 @@ namespace Tencent.Cls.Sdk.Utils
 
         static string CalSha1sum(string msg)
         {
+            var enc = Encoding.UTF8;
             var hasher = new HMACSHA1();
             var baText2BeHashed = enc.GetBytes(msg);
             byte[] baHashedText = hasher.ComputeHash(baText2BeHashed);

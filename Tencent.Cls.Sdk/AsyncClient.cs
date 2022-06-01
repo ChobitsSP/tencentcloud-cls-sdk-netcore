@@ -9,7 +9,7 @@ using Tencent.Cls.Sdk.Utils;
 
 namespace Tencent.Cls.Sdk
 {
-    internal class AsyncClient
+    public class AsyncClient
     {
         public string HostPath { get; set; } = "https://ap-guangzhou.cls.tencentcs.com";
         public string HostName
@@ -20,6 +20,7 @@ namespace Tencent.Cls.Sdk
                 return this.HostPath.Split('/')[2];
             }
         }
+
         public string SecretId { get; set; }
         public string SecretKey { get; set; }
         public string SourceIp { get; set; }
@@ -34,8 +35,8 @@ namespace Tencent.Cls.Sdk
             }
 
             var headParameter = this.getCommonHeadPara();
-            //  request.setParam(TOPIC_ID, request.getTopic());
-            var urlParameter = request.getAllParams();
+            request[Constants.TOPIC_ID] = request.Topic;
+            Dictionary<string, string> urlParameter = request;
 
             for (var retryTimes = 0; retryTimes < this.RetryTimes; retryTimes++)
             {
