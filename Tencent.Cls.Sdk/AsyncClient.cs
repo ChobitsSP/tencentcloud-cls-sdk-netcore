@@ -25,6 +25,7 @@ namespace Tencent.Cls.Sdk
 
         public string SecretId { get; set; }
         public string SecretKey { get; set; }
+        public string TopicId { get; set; }
         public string SourceIp { get; set; }
         public int RetryTimes { get; set; }
 
@@ -61,6 +62,11 @@ namespace Tencent.Cls.Sdk
             }
 
             return null;
+        }
+
+        public Task<PutLogsResponse> EmitBatchAsync(params LogEvent[] logEvents)
+        {
+            return EmitBatchAsync(this.TopicId, logEvents);
         }
 
         /// <summary>
