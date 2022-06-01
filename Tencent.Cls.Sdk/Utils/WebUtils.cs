@@ -333,6 +333,11 @@ namespace Tencent.Cls.Sdk
             HttpWebRequest req = GetWebRequest(url, "POST");
             req.ContentType = "application/json;charset=utf-8";
 
+            foreach (var header in headers)
+            {
+                req.Headers.Set(header.Key, header.Value);
+            }
+
             System.IO.Stream reqStream = req.GetRequestStream();
             reqStream.Write(postData, 0, postData.Length);
             reqStream.Close();
