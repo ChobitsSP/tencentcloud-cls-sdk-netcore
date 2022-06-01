@@ -22,16 +22,6 @@ namespace Tencent.Cls.Sdk
         /// </summary>
         public int Timeout { get; set; } = 100000;
 
-        static Encoding GetEncoding(string CharacterSet)
-        {
-            if (string.IsNullOrEmpty(CharacterSet))
-            {
-                return Encoding.UTF8;
-            }
-
-            return Encoding.GetEncoding(CharacterSet) ?? Encoding.UTF8;
-        }
-
         public PutLogsResponse DoPostWithHeaders(string url, IDictionary<string, string> headers, byte[] postData)
         {
             HttpWebRequest req = GetWebRequest(url, "POST");
@@ -71,7 +61,6 @@ namespace Tencent.Cls.Sdk
             }
         }
 
-
         public async Task<PutLogsResponse> DoPostWithHeadersAsync(string url, IDictionary<string, string> headers, byte[] postData)
         {
             HttpWebRequest req = GetWebRequest(url, "POST");
@@ -90,7 +79,6 @@ namespace Tencent.Cls.Sdk
                 // var rsp = await req.GetRequestStreamAsync();
 
                 var rsp = (HttpWebResponse)req.GetResponse();
-
                 var res = new PutLogsResponse();
                 res.Headers = new Dictionary<string, string>();
                 res.StatusCode = HttpStatusCode.OK;
@@ -124,25 +112,6 @@ namespace Tencent.Cls.Sdk
             }
         }
 
-        /// <summary>
-        /// 执行HTTP GET请求。
-        /// </summary>
-        /// <param name="url">请求地址</param>
-        /// <param name="parameters">请求参数</param>
-        /// <returns>HTTP响应</returns>
-        public string DoGet(string url, IDictionary<string, string> parameters)
-        {
-            url = BuildGetUrl(url, parameters);
-            HttpWebRequest req = GetWebRequest(url, "GET");
-            req.ContentType = "application/x-www-form-urlencoded;charset=utf-8";
-
-            HttpWebResponse rsp = (HttpWebResponse)req.GetResponse();
-
-            Encoding encoding = GetEncoding(rsp.CharacterSet);
-
-            return GetResponseAsString(rsp, encoding);
-        }
-
         public HttpWebRequest GetWebRequest(string url, string method)
         {
             HttpWebRequest req = null;
@@ -163,54 +132,6 @@ namespace Tencent.Cls.Sdk
             req.Timeout = this.Timeout;
 
             return req;
-        }
-
-        /// <summary>
-        /// 把响应流转换为文本。
-        /// </summary>
-        /// <param name="rsp">响应流对象</param>
-        /// <param name="encoding">编码方式</param>
-        /// <returns>响应文本</returns>
-        public static string GetResponseAsString(HttpWebResponse rsp, Encoding encoding)
-        {
-            System.IO.Stream stream = null;
-            StreamReader reader = null;
-
-            try
-            {
-                // 以字符流的方式读取HTTP响应
-                stream = rsp.GetResponseStream();
-                reader = new StreamReader(stream, encoding);
-                return reader.ReadToEnd();
-            }
-            finally
-            {
-                // 释放资源
-                if (reader != null) reader.Close();
-                if (stream != null) stream.Close();
-                if (rsp != null) rsp.Close();
-            }
-        }
-
-        public static byte[] GetResponseBytes(HttpWebResponse rsp)
-        {
-            System.IO.Stream stream = null;
-            MemoryStream reader = null;
-
-            try
-            {
-                // 以字符流的方式读取HTTP响应
-                reader = new MemoryStream();
-                rsp.GetResponseStream().CopyTo(reader);
-                return reader.ToArray();
-            }
-            finally
-            {
-                // 释放资源
-                if (reader != null) reader.Close();
-                if (stream != null) stream.Close();
-                if (rsp != null) rsp.Close();
-            }
         }
 
         /// <summary>
