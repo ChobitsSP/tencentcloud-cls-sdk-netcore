@@ -66,7 +66,7 @@ namespace Tencent.Cls.Sdk
         /// <summary>
         /// Emit a batch of log events, running asynchronously.
         /// </summary>
-        public async Task<PutLogsResponse> EmitBatchAsync(string topic, IEnumerable<LogEvent> logEvents)
+        public async Task<PutLogsResponse> EmitBatchAsync(string topic, params LogEvent[] logEvents)
         {
             var logBytes = new ClsFormatter().Format(logEvents);
 
