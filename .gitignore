@@ -24,3 +24,4 @@ bin
 *.user
 licenses.licx
 package-lock.json
+/Tencent.Cls.Test/config.json

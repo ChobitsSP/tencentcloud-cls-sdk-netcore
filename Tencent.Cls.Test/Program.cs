@@ -7,7 +7,7 @@ namespace Tencent.Cls.Test
 {
     class Program
     {
-        static async void Main(string[] args)
+        static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
             Test1();
