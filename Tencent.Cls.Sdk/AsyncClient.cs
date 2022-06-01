@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Serilog.Events;
+using Serilog.Sinks.TencentCloud.Sinks.Http.BatchFormatters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -43,6 +45,45 @@ namespace Tencent.Cls.Sdk
                 try
                 {
                     var res = await this.sendLogs(Constants.CONST_HTTP_METHOD_POST, Constants.UPLOAD_LOG_RESOURCE_URI, urlParameter, headParameter, logBytes, request.Topic);
+                    if (res.StatusCode == HttpStatusCode.OK)
+                    {
+                        return res;
+                    }
+                    if (retryTimes + 1 >= this.RetryTimes)
+                    {
+                        throw new Exception("send log failed and exceed retry times");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Emit a batch of log events, running asynchronously.
+        /// </summary>
+        public async Task<PutLogsResponse> EmitBatchAsync(string topic, IEnumerable<LogEvent> logEvents)
+        {
+            var logBytes = new ClsFormatter().Format(logEvents);
+
+            if (logBytes.Length > Constants.CONST_MAX_PUT_SIZE)
+            {
+                throw new Exception($"InvalidLogSize.logItems' size exceeds maximum limitation : { Constants.CONST_MAX_PUT_SIZE} bytes, logBytes={logBytes.Length}, topic={topic}");
+            }
+
+            var headParameter = this.getCommonHeadPara();
+            var urlParameter = new Dictionary<string, string>();
+            urlParameter[Constants.TOPIC_ID] = topic;
+
+            for (var retryTimes = 0; retryTimes < this.RetryTimes; retryTimes++)
+            {
+                try
+                {
+                    var res = await this.sendLogs(Constants.CONST_HTTP_METHOD_POST, Constants.UPLOAD_LOG_RESOURCE_URI, urlParameter, headParameter, logBytes, topic);
                     if (res.StatusCode == HttpStatusCode.OK)
                     {
                         return res;

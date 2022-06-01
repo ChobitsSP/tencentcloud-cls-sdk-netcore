@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,9 +23,20 @@ namespace Tencent.Cls.Sdk.Models
 
     public class LogGroup
     {
-        public string FileName { get; set; }
+        [JsonProperty("filename")]
+        public string Filename { get; set; }
+
+        [JsonProperty("source")]
         public string Source { get; set; }
+
+        [JsonProperty("contextFlow")]
+        public string ContextFlow { get; set; }
+
+        [JsonProperty("logs")]
         public List<LogItem> Logs { get; set; }
+
+        [JsonProperty("logTags")]
+        public List<LogTag> LogTags { get; set; }
 
         public byte[] GetBytes()
         {
@@ -32,8 +44,28 @@ namespace Tencent.Cls.Sdk.Models
         }
     }
 
+    public class LogGroupList
+    {
+        [JsonProperty("logGroupList")]
+        public List<LogGroup> List { get; set; }
+    }
+
     public class LogItem
     {
+        [JsonProperty("time")]
+        public long? Time { get; set; }
+        public List<LogContent> Contents { get; set; }
+    }
 
+    public class LogTag
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class LogContent
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
     }
 }
