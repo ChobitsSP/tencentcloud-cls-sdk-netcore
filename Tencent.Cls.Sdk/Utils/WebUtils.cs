@@ -35,16 +35,14 @@ namespace Tencent.Cls.Sdk
             {
                 Method = HttpMethod.Post,
                 RequestUri = new Uri(url),
-                //Headers = {
-                //    { HttpRequestHeader.Authorization.ToString(), headers["Authorization"] },
-                //    { HttpRequestHeader.Host.ToString(), headers["Host"] },
-                //    { HttpRequestHeader.ContentLength.ToString(), postData.Length.ToString() },
-                //    { HttpRequestHeader.ContentType.ToString(), Constants.CONST_CONTENT_TYPE },
-                //},
+                Headers = {
+                    // { HttpRequestHeader.Authorization.ToString(), headers["Authorization"] },
+                    { HttpRequestHeader.Host.ToString(), headers["Host"] },
+                    { HttpRequestHeader.ContentLength.ToString(), postData.Length.ToString() },
+                    { HttpRequestHeader.ContentType.ToString(), Constants.CONST_CONTENT_TYPE },
+                },
                 Content = new ByteArrayContent(postData),
             };
-
-            req.Headers.Clear();
 
             foreach (var header in headers)
             {
@@ -70,17 +68,14 @@ namespace Tencent.Cls.Sdk
             try
             {
                 // var rsp = await req.GetRequestStreamAsync();
-
-                var rsp = (HttpWebResponse)req.GetResponse();
+                var rsp = (HttpWebResponse)await req.GetResponseAsync();
                 var res = new PutLogsResponse();
                 res.Headers = new Dictionary<string, string>();
-                res.StatusCode = HttpStatusCode.OK;
-
-                //foreach (var key in rsp.Headers.AllKeys)
-                //{
-                //    res.Headers[key] = rsp.Headers.GetValues(key).FirstOrDefault();
-                //}
-
+                res.StatusCode = rsp.StatusCode;
+                foreach (var key in rsp.Headers.AllKeys)
+                {
+                    res.Headers[key] = rsp.Headers.GetValues(key).FirstOrDefault();
+                }
                 return res;
             }
             catch (WebException ex)

@@ -107,16 +107,23 @@ namespace Tencent.Cls.Sdk
             {
                { Constants.TOPIC_ID, topic },
             });
-            var rsp = await webUtils.DoPostAsync(url, headParameter, body);
+            var res = await webUtils.DoPostWithHeadersAsync(url, headParameter, body);
 
-            var res = new PutLogsResponse();
-            res.Headers = new Dictionary<string, string>();
-            res.StatusCode = rsp.StatusCode;
+            //var res = new PutLogsResponse();
+            //res.Headers = new Dictionary<string, string>();
+            //res.StatusCode = rsp.StatusCode;
 
-            foreach (var header in rsp.Headers)
-            {
-                res.Headers[header.Key] = header.Value.ToString();
-            }
+            //foreach (var header in rsp.Headers)
+            //{
+            //    res.Headers[header.Key] = header.Value.FirstOrDefault();
+            //}
+
+            //if (rsp.StatusCode != HttpStatusCode.OK)
+            //{
+            //    var str = await rsp.Content.ReadAsStringAsync();
+
+            //    Console.WriteLine(str);
+            //}
 
             return res;
         }

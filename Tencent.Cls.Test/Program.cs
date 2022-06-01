@@ -27,6 +27,8 @@ namespace Tencent.Cls.Test
                     { "msg", "test1" },
                     { "uuid", Guid.NewGuid().ToString() },
                 });
+
+                Console.ReadLine();
                 Debugger.Break();
             }
             catch (Exception ex)
