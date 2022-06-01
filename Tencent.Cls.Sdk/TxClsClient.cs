@@ -70,17 +70,22 @@ namespace Tencent.Cls.Sdk
             return EmitBatchAsync(this.TopicId, logEvents);
         }
 
-        public async void SendLog(LogEventLevel level)
+        public async Task<PutLogsResponse> SendLog(LogEventLevel level, string msg, Dictionary<string, string> body = null)
         {
             var plist = new List<LogEventProperty>();
             var tokens = new List<MessageTemplateToken>();
 
-            var log = new LogEvent(DateTime.Now, LogEventLevel.Debug, null, new MessageTemplate("123", tokens), plist);
+            if (body != null)
+            {
+                foreach (var kv in body)
+                {
+                    plist.Add(new LogEventProperty(kv.Key, new ScalarValue(kv.Value)));
+                }
+            }
 
-
-
-
-
+            var log = new LogEvent(DateTimeOffset.Now, level, null, new MessageTemplate(msg, tokens), plist);
+            var rsp = await EmitBatchAsync(this.TopicId, log);
+            return rsp;
         }
 
         /// <summary>
