@@ -46,6 +46,16 @@ namespace Tencent.Cls.Sdk
             await SendLog(LogEventLevel.Warning, body, ex);
         }
 
+        public async void Debug(Dictionary<string, string> body, Exception ex = null)
+        {
+            await SendLog(LogEventLevel.Warning, body, ex);
+        }
+
+        public async void Write(LogEventLevel level, Dictionary<string, string> body, Exception ex = null)
+        {
+            await SendLog(level, body, ex);
+        }
+
         private async Task<PutLogsResponse> SendLog(LogEventLevel level, Dictionary<string, string> body, Exception ex = null)
         {
             var dic = new SortedDictionary<string, string>();
